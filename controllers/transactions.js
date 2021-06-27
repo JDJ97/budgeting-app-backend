@@ -1,69 +1,36 @@
 const transactions = require('express').Router();
-const transactionsArr = require('../models/transactions');
+const transactionsArray = require('../models/transactions');
 
-transactions.get('/', (req, res) => {
-    res.json({ 
-        payload: transactionsArr, 
-        success: true
-    });
-});
+transactions.get("/", (req, res) => {
+    res.json(transactionsArray);
+})
 
-transactions.post('/', (req, res) => {
-    const { from, date, name, amount } = req.body;
-    if (from && date && name && amount) {
-        transactionsArr.push(req.body);
-        res.json({
-            success: true, 
-            payload: req.body
-        }); 
+ //show by ID
+transactions.get("/:id", (req, res) => {
+    if (transactionsArray[req.params.id]) {
+        res.json(transactionsArray[req.params.id])
     } else {
-        res.status(422).json({
-            success: false, 
-            payload: 'Must include all required.'
-        });
+        res.redirect("/404")
     }
-});
+})
 
-transactions.get('/:idx', (req, res) => {
-    const transaction = transactionsArr[req.params.idx];
-    if (transaction) {
-        res.json({
-            success: true,
-            payload: transaction
-        });
-    } else {
-        res.redirect('/404');
-    }
-});
+//create
+transactions.post("/", (req, res) => {
+    transactionsArray.push(req.body)
+    res.json(transactionsArray[transactionsArray.length - 1])
+})
 
-transactions.put('/:idx', (req, res) => {
-    const newTransaction = req.body;
-    const existingTransaction = transactionsArr[req.params.idx];
-    if (existingTransaction) {
-        transactionsArr[req.params.idx] = newTransaction;
-        res.json({
-            success: true, 
-            payload: newTransaction
-        }); 
-    } else {
-        res.redirect('/404');
-    }
-});
+//destroy
+transactions.delete("/:id", (req, res) => {
+    const deletedTransaction = transactionsArray.splice(req.params.id, 1)
+    res.status(200).json(deletedTransaction)
+})
 
-transactions.delete('/:idx', (req, res) => {
-    const { idx } = req.params;
-    const existingTransaction = catsArr[idx];
-    if (existingTransaction) {
-        transactionsArr.splice(idx, 1);    
-        res.json({
-            success: true, 
-            payload: existingTransaction
-        });
-
-    } else {
-        res.redirect('/404');
-    }
-});
+//update
+transactions.put("/:id", (req, res) => {
+    transactionsArray[req.params.id] = req.body
+    res.status(200).json(transactionsArray[req.params.id])
+})
 
 
 
